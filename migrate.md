@@ -8,6 +8,13 @@
 * Subversion
 * GIT
 * git-svn bridge
+* Ensure your GIT credentials are correctly setup in ~/.gitconfig
+
+```bash
+[user]
+  name = Mark Small
+  email = small_mark@hotmail.com
+```
 
 ## Migrate a single SVN repository
 
@@ -16,27 +23,27 @@ Before starting the migration process the person running the scripts need to ens
 **NOTE:** If using another GIT server, there should be no difference, but I can't guarantee that.
 
 1. Get list of SVN Committers: `svn log --xml --quiet | grep author | sort -u | perl -pe 's/.*>(.*?)<.*/$1 = /' > users.txt`
-1. Clone SVN repo using git-svn: `git svn clone [SVN repo URL] --no-metadata -A users.txt --stdlayout ~/[repo nam]`
+1. Clone SVN repo using git-svn: `git svn clone [SVN repo URL] --no-metadata -A users.txt --stdlayout ~/[repo name]`
 1. Convert svn:ignore to .gitignore:
-```
+```bash
 cd ~/[repo name]
 git svn show-ignore > .gitignore
 git add .gitignore
 git commit -m "Convert svn:ignore to .gitignore"
 ```
 4. Push repository to a bare git repository:
-```
+```bash
 git init --bare ~/new-bare.git
 cd ~/new-bare.git
 git symbolic-ref HEAD refs/heads/trunk
 ```
 5. Rename trunk branch to master:
-```
+```bash
 cd ~/new-bare.git
 git branch -m trunk master`
 ```
 6. Clean up branches and tags:
-```
+```bash
 cd ~/new-bare.git
 git for-each-ref --format='%(refname)' refs/heads/tags |
 cut -d / -f 4 |
@@ -48,7 +55,7 @@ done
 ```
 7. Add remote to repository: `git remote add origin git@[git server]:[group]/[repository].git`
 1. Push branches and tags to remote:
-```
+```bash
 git push origin --all
 git push origin --tags
 ```
